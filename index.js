@@ -72,6 +72,13 @@ client.connect(err => {
         res.json(result);
         console.log(result);
     });
+    app.get("/myOrder/:email", async (req, res) => {
+      console.log(req.params.email);
+      const result = await ordersCollection
+        .find({ email: req.params.email })
+        .toArray();
+      res.send(result);
+    });
      // review
   app.post("/addSReview", async (req, res) => {
     const result = await reviewCollection.insertOne(req.body);
