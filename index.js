@@ -29,9 +29,12 @@ client.connect(err => {
     console.log("database connected successfully");
     const database = client.db('watchDb');
    
-    /* places collection */
+    /* All collection */
     const servicesCollection = database.collection('services');
     const ordersCollection = database.collection('orders');
+    const reviewCollection = database.collection("review");
+    const usersCollection = database.collection("users");
+
   
 
     // get watches api //
@@ -41,52 +44,83 @@ client.connect(err => {
         res.send(services);
     });
 
-//         //post order data api //
-//       app.post('/orders', async(req, res) =>{
-//           const order = req.body;
+        //post order data api //
+      app.post('/orders', async(req, res) =>{
+          const order = req.body;
 
-//           const result = await ordersCollection.insertOne(order);
-//           console.log(`A document was inserted with the _id: ${result.insertedId}`);
-//           res.json(result)
-//       });
+          const result = await ordersCollection.insertOne(order);
+          console.log(`A document was inserted with the _id: ${result.insertedId}`);
+          res.json(result)
+      });
     
-//            // get orders api //
-//       app.get('/orders', async (req, res) => {
-//         const cursor = ordersCollection.find({});
-//         const orders = await cursor.toArray();
-//         res.send(orders);
-//     });
-//     // confirmation put api 
-//     app.put("/confirmation/:id", async (req, res) => {
-//       const id = req.params.id;
-//       const query = { _id: ObjectId(id) };
-//       const order = {
-//         $set: {
-//           status:"Confirm"
-//         },
-//       };
-//         const result = await ordersCollection.updateOne(query,order);
-//         res.json(result);
-//         console.log(result);
-//     });
+           // get orders api //
+      app.get('/orders', async (req, res) => {
+        const cursor = ordersCollection.find({});
+        const orders = await cursor.toArray();
+        res.send(orders);
+    });
+    // confirmation put api 
+    app.put("/confirmation/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const order = {
+        $set: {
+          status:"Confirm"
+        },
+      };
+        const result = await ordersCollection.updateOne(query,order);
+        res.json(result);
+        console.log(result);
+    });
+     // review
+  app.post("/addSReview", async (req, res) => {
+    const result = await reviewCollection.insertOne(req.body);
+    res.send(result);
+  });
+     // add services
+  app.post("/services", async (req, res) => {
+    console.log(req.body);
+    const result = await servicesCollection.insertOne(req.body);
+    console.log(result);
+  });
 
-   
+   // delete data from cart delete api
+   app.delete("/delete/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) };
+    const result = await ordersCollection.deleteOne(query);
+    res.json(result);
+  });
+
+  app.post("/addUserInfo", async (req, res) => {
+    console.log("req.body");
+    const result = await usersCollection.insertOne(req.body);
+    res.send(result);
+    console.log(result);
+  });
+  //  make admin
+
+  app.put("/makeAdmin", async (req, res) => {
+    const filter = { email: req.body.email };
+    const result = await usersCollection.find(filter).toArray();
+    if (result) {
+      const documents = await usersCollection.updateOne(filter, {
+        $set: { role: "admin" },
+      });
+      console.log(documents);
+    }
     
+  });
 
-//      // add services
-//   app.post("/services", async (req, res) => {
-//     console.log(req.body);
-//     const result = await servicesCollection.insertOne(req.body);
-//     console.log(result);
-//   });
+  // check admin or not
+  app.get("/checkAdmin/:email", async (req, res) => {
+    const result = await usersCollection
+      .find({ email: req.params.email })
+      .toArray();
+    console.log(result);
+    res.send(result);
+  });
 
-//    // delete data from cart delete api
-//    app.delete("/delete/:id", async (req, res) => {
-//     const id = req.params.id;
-//     const query = { _id: ObjectId(id) };
-//     const result = await ordersCollection.deleteOne(query);
-//     res.json(result);
-//   });
 
  
   });
