@@ -39,7 +39,7 @@ client.connect(err => {
 
     // get watches api //
     app.get('/services', async (req, res) => {
-        const cursor = servicesCollection.find({}).limit(6);
+        const cursor = servicesCollection.find({});
         const services = await cursor.toArray();
         res.send(services);
     });
@@ -72,13 +72,13 @@ client.connect(err => {
         res.json(result);
         console.log(result);
     });
-    app.get("/myOrder/:email", async (req, res) => {
-      console.log(req.params.email);
-      const result = await ordersCollection
-        .find({ email: req.params.email })
-        .toArray();
-      res.send(result);
-    });
+    // app.get("/myOrder/:email", async (req, res) => {
+    //   console.log(req.params.email);
+    //   const result = await ordersCollection
+    //     .find({ email: req.params.email })
+    //     .toArray();
+    //   res.send(result);
+    // });
      // review
   app.post("/addSReview", async (req, res) => {
     const result = await reviewCollection.insertOne(req.body);
@@ -108,14 +108,13 @@ client.connect(err => {
   //  make admin
 
   app.put("/makeAdmin", async (req, res) => {
-    const filter = { email: req.body.email };
-    const result = await usersCollection.find(filter).toArray();
-    if (result) {
+    const email =  req.body.email;
+    const filter = { email };
       const documents = await usersCollection.updateOne(filter, {
         $set: { role: "admin" },
-      });
+      },{upsert:true});
       console.log(documents);
-    }
+  
     
   });
 
