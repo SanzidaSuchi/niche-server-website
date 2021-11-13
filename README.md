@@ -15,5 +15,5 @@ Technology we used to build this project:
 - React Bootstrap
 - JS
 - React Hook From
--React Router dom
+- React Router dom
 
